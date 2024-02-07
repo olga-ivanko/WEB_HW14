@@ -12,6 +12,9 @@ uvicorn = {extras = ["standard"], version = "^0.27.0.post1"}
 sqlalchemy = "^2.0.25"
 psycopg2 = "^2.9.9"
 alembic = "^1.13.1"
+pydantic-extra-types = "^2.5.0"
+phonenumbers = "^8.13.29"
+pydantic = {extras = ["email"], version = "^2.6.1"}
 
 
 [build-system]

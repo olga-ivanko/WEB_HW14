@@ -1,12 +1,8 @@
 from datetime import datetime
 
 from sqlalchemy import String
-from db import engine
-
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-
+from src.database.db import engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -29,5 +25,3 @@ if __name__ == "__main__":
     Base.metadata.drop_all(engine, checkfirst=True)
     Base.metadata.create_all(engine)
     Base.metadata.bind = engine
-
-

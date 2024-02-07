@@ -5,6 +5,10 @@ import configparser
 import pathlib
 
 
+
+
+
+
 file_config = pathlib.Path(__file__).parent.joinpath("config.ini")
 config = configparser.ConfigParser()
 config.read(file_config)
@@ -14,8 +18,18 @@ password = config.get("DB", "PASSWORD")
 db_name = config.get("DB", "DATABASE")
 domain = config.get("DB", "DOMAIN")
 
-url = f"postgresql://{username}:{password}@{domain}:5432/{db_name}"
-engine = create_engine(url, echo=False)
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql+psycopg2://{username}:{password}@{domain}:5432/{db_name}"
+)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+DBSession = sessionmaker(autocommit = False, autoflush = False, bind=engine)
+
+
+# Dependency
+def get_db():
+    db = DBSession()
+    try:
+        yield db
+    finally:
+        db.close()
