@@ -6,6 +6,7 @@ from src.schemas import ContactModel, ContactUpdate, ContactResponse
 from typing import List
 
 router = APIRouter(prefix="/contacts", tags=["contacts"])
+router_b = APIRouter(prefix="/contacts/birthdays", tags=["contacts"])
 
 
 @router.post("/", response_model=ContactResponse)
@@ -39,7 +40,7 @@ async def delete_contact(contact_id: int, db: Session = Depends(get_db)):
     return contact
 
 
-@router.get("/birthdays", response_model=List[ContactResponse])
+@router_b.get("/", response_model=List[ContactResponse])
 async def get_future_birthdays(db: Session = Depends(get_db)):
     contacts = await repository_contacts.get_future_birthdays(db)
     return contacts

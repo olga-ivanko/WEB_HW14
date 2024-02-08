@@ -70,9 +70,7 @@ async def delete_contact(contact_id: int, db: Session = Depends(get_db)):
 async def get_future_birthdays(db: Session = Depends(get_db)):
     today = datetime.now().date()
     end_date = today + timedelta(days=7)
-    next_month_end_date = today.replace(day=1, month=today.month % 12 + 1) + timedelta(
-        days=7
-    )
+   
 
     result = (
         db.query(Contact)
@@ -84,8 +82,8 @@ async def get_future_birthdays(db: Session = Depends(get_db)):
                         extract("day", Contact.birthday) >= today.day,
                     ),
                     and_(
-                        extract("month", Contact.birthday) == today.month % 12 + 1,
-                        extract("day", Contact.birthday) <= next_month_end_date.day,
+                        extract("month", Contact.birthday) == end_date.month,
+                        extract("day", Contact.birthday) <= end_date.day,
                     ),
                 )
             )

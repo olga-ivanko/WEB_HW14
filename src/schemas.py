@@ -17,6 +17,13 @@ class ContactUpdate(ContactModel):
 
 class ContactResponse(ContactModel):
     id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: PhoneNumber
+    birthday: date = date.today()
+    notes: str = None
+
 
     class Config:
         orm_mode = True
