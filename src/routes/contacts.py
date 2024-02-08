@@ -15,7 +15,7 @@ async def create_contact(contact: ContactModel, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[ContactResponse])
 async def read_contacts(db: Session = Depends(get_db), q: str = None):
-    contacts = await read_contacts.read_contacts(db, q)
+    contacts = await repository_contacts.read_contacts(db, q)
     return contacts
 
 
