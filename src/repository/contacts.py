@@ -32,7 +32,7 @@ async def read_contacts(db: Session = Depends(get_db), q: str = None):
     return db.query(Contact).all()
 
 
-async def read_contact(contact_id: int, db: Session = Depends(get_db)):
+async def find_contact(contact_id: int, db: Session = Depends(get_db)):
     db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
     if db_contact is None:
         raise HTTPException(
@@ -41,16 +41,33 @@ async def read_contact(contact_id: int, db: Session = Depends(get_db)):
     return db_contact
 
 
-async def update_contact(
-    contact_id: int, contact: ContactUpdate, db: Session = Depends(get_db)
-):
+async def update_contact(contact_id: int, contact: ContactUpdate, db: Session = Depends(get_db)):
+    
     db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
+    
     if db_contact is None:
         raise HTTPException(
             status_code=404, detail=f"Contact with id: {contact_id} was not found"
         )
-    for key, val in contact.model_dump().items():
-        setattr(db_contact, key, val)
+
+    if contact.first_name != db_contact.first_name and contact.first_name != "string":
+        db_contact.first_name = contact.first_name
+
+    if contact.last_name != db_contact.last_name and contact.last_name != "string":
+        db_contact.last_name = contact.last_name
+
+    if contact.email != db_contact.email and contact.email != "user@example.com":
+        db_contact.email = contact.email
+
+    if contact.phone != db_contact.phone and contact.phone != "tel:+381-23-4567899":
+        db_contact.phone = contact.phone
+
+    if contact.birthday != db_contact.birthday and contact.birthday != datetime.today():
+        db_contact.birthday = contact.birthday
+
+    if contact.notes != db_contact.notes and contact.notes != "string":
+        db_contact.notes = contact.notes
+
     db.commit()
     db.refresh(db_contact)
     return db_contact

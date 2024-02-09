@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+import uvicorn
 
 from src.routes import contacts
 
@@ -15,4 +15,6 @@ def read_root():
     return {"message": "Hello World"}
 
 
-# uvicorn main:app --host localhost --port 8000 --reload
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
