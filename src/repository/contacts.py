@@ -75,16 +75,16 @@ async def get_future_birthdays(db: Session = Depends(get_db)):
     result = (
         db.query(Contact)
         .filter(
-            and_(
+
                 or_(
                     and_(
                         extract("month", Contact.birthday) == today.month,
                         extract("day", Contact.birthday) >= today.day,
+                        extract("day", Contact.birthday) <= end_date.day
                     ),
                     and_(
                         extract("month", Contact.birthday) == end_date.month,
-                        extract("day", Contact.birthday) <= end_date.day,
-                    ),
+                        extract("day", Contact.birthday) <= end_date.day
                 )
             )
         )
