@@ -2,13 +2,13 @@ from fastapi import Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, extract
-from src.database.models import Contact
+from src.database.models import Contact, User
 from src.database.db import get_db
 from src.schemas import ContactModel, ContactUpdate, ContactResponse
 from datetime import datetime, timedelta
 
 
-async def create_contact(contact: ContactModel, db: Session = Depends(get_db)):
+async def create_contact(contact: ContactModel, user: User, db: Session = Depends(get_db)):
     db_contact = Contact(**contact.model_dump())
     db.add(db_contact)
     db.commit()
@@ -16,24 +16,24 @@ async def create_contact(contact: ContactModel, db: Session = Depends(get_db)):
     return db_contact
 
 
-async def read_contacts(db: Session = Depends(get_db), q: str = None):
+async def read_contacts(db: Session = Depends(get_db), q: str = None, user = User):
     if q:
         return (
             db.query(Contact)
-            .filter(
+            .filter(and_(
                 or_(
                     Contact.first_name.ilike(f"%{q}%"),
                     Contact.last_name.ilike(f"%{q}%"),
                     Contact.email.ilike(f"%{q}%"),
-                )
+                ), Contact.user_id == user.id
             )
             .all()
-        )
+        ))
     return db.query(Contact).all()
 
 
-async def find_contact(contact_id: int, db: Session = Depends(get_db)):
-    db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
+async def find_contact(contact_id: int, user: User, db: Session = Depends(get_db)):
+    db_contact = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.id == contact_id)).first()
     if db_contact is None:
         raise HTTPException(
             status_code=404, detail=f"Contact with id: {contact_id} was not found"
@@ -41,10 +41,14 @@ async def find_contact(contact_id: int, db: Session = Depends(get_db)):
     return db_contact
 
 
-async def update_contact(contact_id: int, contact: ContactUpdate, db: Session = Depends(get_db)):
-    
-    db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
-    
+async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db: Session = Depends(get_db)):
+
+    db_contact = (
+        db.query(Contact)
+        .filter(and_(Contact.user_id == user.id,  Contact.id == contact_id))
+        .first()
+    )
+
     if db_contact is None:
         raise HTTPException(
             status_code=404, detail=f"Contact with id: {contact_id} was not found"
@@ -73,8 +77,12 @@ async def update_contact(contact_id: int, contact: ContactUpdate, db: Session = 
     return db_contact
 
 
-async def delete_contact(contact_id: int, db: Session = Depends(get_db)):
-    db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
+async def delete_contact(contact_id: int, user: User, db: Session = Depends(get_db)):
+    db_contact = (
+        db.query(Contact)
+        .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
+        .first()
+    )
     if db_contact is None:
         raise HTTPException(
             status_code=404, detail=f"Contact with id: {contact_id} was not found"
@@ -84,25 +92,25 @@ async def delete_contact(contact_id: int, db: Session = Depends(get_db)):
     return {"message": "Contact successfully deleted"}
 
 
-async def get_future_birthdays(db: Session = Depends(get_db)):
+async def get_future_birthdays(user: User, db: Session = Depends(get_db)):
     today = datetime.now().date()
     end_date = today + timedelta(days=7)
-   
 
     result = (
         db.query(Contact)
         .filter(
-
-                or_(
-                    and_(
-                        extract("month", Contact.birthday) == today.month,
-                        extract("day", Contact.birthday) >= today.day,
-                        extract("day", Contact.birthday) <= end_date.day
-                    ),
-                    and_(
-                        extract("month", Contact.birthday) == end_date.month,
-                        extract("day", Contact.birthday) <= end_date.day
-                )
+            or_(
+                and_(
+                    extract("month", Contact.birthday) == today.month,
+                    extract("day", Contact.birthday) >= today.day,
+                    extract("day", Contact.birthday) <= end_date.day,
+                    Contact.user_id == user.id,
+                ),
+                and_(
+                    extract("month", Contact.birthday) == end_date.month,
+                    extract("day", Contact.birthday) <= end_date.day,
+                    Contact.user_id == user.id
+                ),
             )
         )
         .all()
