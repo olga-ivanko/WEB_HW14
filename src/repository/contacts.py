@@ -3,20 +3,27 @@ from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, extract
 from src.database.models import Contact, User
-from src.database.db import get_db
-from src.schemas import ContactModel, ContactUpdate, ContactResponse
+from src.schemas import ContactModel, ContactUpdate
 from datetime import datetime, timedelta
 
 
-async def create_contact(contact: ContactModel, user: User, db: Session = Depends(get_db)):
-    db_contact = Contact(**contact.model_dump())
+async def create_contact(contact: ContactModel, user: User, db: Session):
+    db_contact = Contact(
+        first_name = contact.first_name,
+        last_name = contact.last_name, 
+        email = contact.email,
+        phone = contact.phone,
+        birthday = contact.birthday,
+        notes = contact.notes,
+        user = user
+        )
     db.add(db_contact)
     db.commit()
     db.refresh(db_contact)
     return db_contact
 
 
-async def read_contacts(db: Session = Depends(get_db), q: str = None, user = User):
+async def read_contacts(db: Session, q: str = None, user = User):
     if q:
         return (
             db.query(Contact)
@@ -32,7 +39,7 @@ async def read_contacts(db: Session = Depends(get_db), q: str = None, user = Use
     return db.query(Contact).all()
 
 
-async def find_contact(contact_id: int, user: User, db: Session = Depends(get_db)):
+async def find_contact(contact_id: int, user: User, db: Session):
     db_contact = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.id == contact_id)).first()
     if db_contact is None:
         raise HTTPException(
@@ -41,7 +48,7 @@ async def find_contact(contact_id: int, user: User, db: Session = Depends(get_db
     return db_contact
 
 
-async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db: Session = Depends(get_db)):
+async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db: Session):
 
     db_contact = (
         db.query(Contact)
@@ -77,7 +84,7 @@ async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db
     return db_contact
 
 
-async def delete_contact(contact_id: int, user: User, db: Session = Depends(get_db)):
+async def delete_contact(contact_id: int, user: User, db: Session):
     db_contact = (
         db.query(Contact)
         .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
@@ -92,7 +99,7 @@ async def delete_contact(contact_id: int, user: User, db: Session = Depends(get_
     return {"message": "Contact successfully deleted"}
 
 
-async def get_future_birthdays(user: User, db: Session = Depends(get_db)):
+async def get_future_birthdays(user: User, db: Session):
     today = datetime.now().date()
     end_date = today + timedelta(days=7)
 

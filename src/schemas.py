@@ -22,7 +22,7 @@ class ContactResponse(ContactModel):
     email: EmailStr
     phone: PhoneNumber
     birthday: date 
-    notes: str = None
+    notes: str
 
 
     class Config:
