@@ -17,7 +17,7 @@ async def create_contact(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
-    return await repository_contacts.create_contact(contact,current_user, db)
+    return await repository_contacts.create_contact(contact, current_user, db)
 
 
 @router.get("/", response_model=List[ContactResponse])

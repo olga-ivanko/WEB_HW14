@@ -11,9 +11,9 @@ from src.database.db import get_db
 from src.repository import users as repository_users
 
 
-class Auth: 
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")
-    SECRET_KAY = "secret_key"
+class Auth:
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    SECRET_KEY = "secret_key"
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -23,8 +23,7 @@ class Auth:
     def get_password_hash(self, password: str):
         return self.pwd_context.hash(password)
 
-        # define a function to generate a new access token
-
+    # define a function to generate a new access token
     async def create_access_token(
         self, data: dict, expires_delta: Optional[float] = None
     ):
@@ -32,7 +31,7 @@ class Auth:
         if expires_delta:
             expire = datetime.utcnow() + timedelta(seconds=expires_delta)
         else:
-            expire = datetime.utcnow() + timedelta(minutes=15)
+            expire = datetime.utcnow() + timedelta(minutes=150)
         to_encode.update(
             {"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"}
         )

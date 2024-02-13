@@ -18,7 +18,7 @@ class Contact(Base):
     phone: Mapped[str] = mapped_column(String(20))
     birthday: Mapped[datetime] = mapped_column()
     notes: Mapped[str] = mapped_column(String(250), nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), default=None)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), default=1)
     user = relationship("User", backref="contacts")
 
 class User(Base):
