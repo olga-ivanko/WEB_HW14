@@ -27,16 +27,20 @@ async def read_contacts(db: Session, q: str = None, user = User):
     if q:
         return (
             db.query(Contact)
-            .filter(and_(
+            .filter(
+                and_(
                 or_(
                     Contact.first_name.ilike(f"%{q}%"),
                     Contact.last_name.ilike(f"%{q}%"),
                     Contact.email.ilike(f"%{q}%"),
-                ), Contact.user_id == user.id
-            )
+                ),
+                Contact.user_id == user.id
+
+            ))
             .all()
-        ))
-    return db.query(Contact).all()
+        )
+
+    return db.query(Contact).filter(Contact.user_id == user.id).all()
 
 
 async def find_contact(contact_id: int, user: User, db: Session):
