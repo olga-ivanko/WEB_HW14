@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, func
+from sqlalchemy import String, DateTime, Boolean, func
 from src.database.db import engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import ForeignKey
@@ -30,6 +30,7 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
     avatar: Mapped[str] = mapped_column(String(255), nullable=True)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
 if __name__ == "__main__":
 

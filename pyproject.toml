@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "hw11"
+name = "hw13"
 version = "0.1.0"
-description = "WEB HW11"
+description = "WEB HW13"
 authors = ["Olga Ivanko <o.ivanko@me.com>"]
 readme = "README.md"
 
@@ -19,6 +19,8 @@ libgravatar = "^1.0.4"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.9"
+fastapi-mail = "^1.4.1"
+bcrypt = "^4.1.2"
 
 
 [build-system]

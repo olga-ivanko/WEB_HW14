@@ -23,7 +23,6 @@ class Auth:
     def get_password_hash(self, password: str):
         return self.pwd_context.hash(password)
 
-    # define a function to generate a new access token
     async def create_access_token(
         self, data: dict, expires_delta: Optional[float] = None
     ):
@@ -40,7 +39,6 @@ class Auth:
         )
         return encoded_access_token
 
-    # define a function to generate a new refresh token
     async def create_refresh_token(
         self, data: dict, expires_delta: Optional[float] = None
     ):
@@ -56,6 +54,14 @@ class Auth:
             to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM
         )
         return encoded_refresh_token
+    
+    def create_email_token(self, data: dict):
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(days=7)
+        to_encode.update({"iat": datetime.utcnow(), "exp": expire})
+        token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
+        return token
+
 
     async def decode_refresh_token(self, refresh_token: str):
         try:
@@ -100,6 +106,15 @@ class Auth:
         if user is None:
             raise credentials_exception
         return user
+    
+    async def get_email_from_token(self, token: str): 
+        try: 
+            payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+            email = payload["sub"]
+            return email
+        except JWTError as e: 
+            print(e)
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid token for email")
 
 
 auth_service = Auth()
