@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     email_server: str
     postgres_user: str
     postgres_password: str
-    postgres_database: str
+    postgres_db: str
     postgres_domain: str
     postgres_port: int
     redis_host: str
