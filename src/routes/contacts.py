@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi_limiter.depends import RateLimiter
 from src.database.db import get_db
 from sqlalchemy.orm import Session
 from src.repository import contacts as repository_contacts
@@ -6,6 +7,7 @@ from src.services.auth import auth_service
 from src.schemas import ContactModel, ContactUpdate, ContactResponse
 from src.database.models import User
 from typing import List
+
 
 router = APIRouter(prefix="/contacts", tags=["contacts"])
 router_b = APIRouter(prefix="/contacts/birthdays", tags=["contacts"])
@@ -20,7 +22,12 @@ async def create_contact(
     return await repository_contacts.create_contact(contact, current_user, db)
 
 
-@router.get("/", response_model=List[ContactResponse])
+@router.get(
+    "/",
+    response_model=List[ContactResponse],
+    description="No more that 10 requests per minute",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
+)
 async def read_contacts(
     q: str = None,
     db: Session = Depends(get_db),
