@@ -1,18 +1,28 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 import uvicorn
 
-from src.routes import contacts, auth
+from src.routes import contacts, auth, users
 from src.conf.config import settings
 
 import redis.asyncio as redis
 from fastapi_limiter import FastAPILimiter
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(CORSMiddleware, 
+                   allow_origins=origins, 
+                   allow_credentials=True, 
+                   allow_methods=["*"], 
+                   allow_headers=["*"])
+
 app.include_router(auth.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
 app.include_router(contacts.router_b, prefix="/api")
+app.include_router(users.router, prefix="/api")
 
 
 @app.on_event("startup")

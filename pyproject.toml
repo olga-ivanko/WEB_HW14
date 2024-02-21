@@ -25,6 +25,7 @@ python-dotenv = "^1.0.1"
 fastapi-limiter = "^0.1.6"
 pydantic-settings = "^2.2.0"
 redis = "^5.0.1"
+cloudinary = "^1.38.0"
 
 
 [build-system]
