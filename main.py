@@ -27,6 +27,9 @@ app.include_router(users.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup():
+    """
+    Function to run on application startup.
+    """
     r = await redis.Redis(
         host=settings.redis_host, 
         port=settings.redis_port, 
@@ -39,6 +42,9 @@ async def startup():
 
 @app.get("/")
 def read_root():
+    """
+    Root endpoint returning a greeting message.
+    """
     return {"message": "Hello World"}
 
 

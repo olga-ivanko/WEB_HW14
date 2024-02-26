@@ -6,10 +6,28 @@ from src.schemas import UserModel
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
+    """Retrive a user by email from the database.
+    
+    :param email: The email of the user to retrive.
+    :type email: str
+    :param db: The database session.
+    :type db: Session
+    :return: The user with the specified email
+    :rtype: User 
+    """
     return db.query(User).filter(User.email == email).first()
 
 
 async def create_user(body: UserModel, db: Session) -> User:
+    """Create a new user.
+
+    :param body: The data for the new user to be created.
+    :type body: UserModel
+    :param db: The database session.
+    :type db: Session
+    :return: The newly created user.
+    :rtype: User
+    """
     avatar = None
     try:
         g = Gravatar(body.email)
@@ -24,17 +42,49 @@ async def create_user(body: UserModel, db: Session) -> User:
 
 
 async def update_token(user: User, token: str | None, db: Session) -> None:
+    """
+    Update token for the specified user.
+
+    :param user: The user to update token for.
+    :type user: User
+    :param token: The refreshed token.
+    :type token: str | None
+    :param db: The database session.
+    :type db: Session
+    :return: None
+    """
     user.refresh_token = token
     db.commit()
 
 
 async def confirmed_email(email: str, bd: Session):
+    """
+    Confirm user's email.
+
+    :param email: The email to confirm.
+    :type email: str
+    :param bd: The database session.
+    :type bd: Session
+    :return: None
+    """
     user = await get_user_by_email(email, bd)
     user.confirmed = True
     bd.commit()
 
 
 async def update_avatar(email, url: str, db: Session):
+    """
+    Update user's avatar url.
+
+    :param email: The user's email.
+    :type email: str
+    :param url: The new avatar URL.
+    :type url: str
+    :param db: The database session.
+    :type db: Session
+    :return: The updated user.
+    :rtype: User
+    """
     user = await get_user_by_email(email, db)
     user.avatar = url
     db.commit()

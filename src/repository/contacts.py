@@ -8,6 +8,18 @@ from datetime import datetime, timedelta
 
 
 async def create_contact(contact: ContactModel, user: User, db: Session):
+    """
+    Create a new contact for the specific user.
+
+    :param contact: The data for the contact to be created.
+    :type contact: ContactModel
+    :param user: The user to create the contact for.
+    :type user: User
+    :param db: The database session.
+    :type db: Session
+    :return: The newly created contact.
+    :rtype: Contact
+    """
     db_contact = Contact(
         first_name = contact.first_name,
         last_name = contact.last_name, 
@@ -24,6 +36,18 @@ async def create_contact(contact: ContactModel, user: User, db: Session):
 
 
 async def read_contacts(db: Session, q: str = None, user = User):
+    """
+    Retrieve all contacts for the specific user, optionally filtered by a search query.
+
+    :param db: The database session.
+    :type db: Session
+    :param q: The search query. Defaults to None.
+    :type q: str
+    :param user: The user to retrieve contacts for.
+    :type user: User
+    :return: List of contacts matching the search query if provided or all contacts of the user, if query is None.
+    :rtype: List[Contact]
+    """
     if q:
         return (
             db.query(Contact)
@@ -44,6 +68,19 @@ async def read_contacts(db: Session, q: str = None, user = User):
 
 
 async def find_contact(contact_id: int, user: User, db: Session):
+    """
+    Retrieves a single contact with specified ID for the specific user.
+
+    :param contact_id: The ID of the contact to retrive.
+    :type contact_id: int
+    :param user:The user to retrieve contact for.
+    :type user: User
+    :param db: The database session.
+    :type db: Session
+    :raises HTTPException: If the contact with the specified ID is not found.
+    :return: The found contact.
+    :rtype: Contact
+    """
     db_contact = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.id == contact_id)).first()
     if db_contact is None:
         raise HTTPException(
@@ -53,6 +90,21 @@ async def find_contact(contact_id: int, user: User, db: Session):
 
 
 async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db: Session):
+    """
+    Update a specified contact's details for a specific user.
+
+    :param contact_id: The ID of the contact to update.
+    :type contact_id: int
+    :param user: The user to whom the contact belongs.
+    :type user: User
+    :param contact: The updated contact details.
+    :type contact: ContactUpdate
+    :param db: The database session.
+    :type db: Session
+    :raises HTTPException: If the contact with the specified ID is not found.
+    :return: The updated contact.
+    :rtype: Contact
+    """
 
     db_contact = (
         db.query(Contact)
@@ -89,6 +141,20 @@ async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db
 
 
 async def delete_contact(contact_id: int, user: User, db: Session):
+    """
+    Removes a single contact with the specified ID for a specific user.
+
+    :param contact_id: The ID of the contact to delete.
+    :type contact_id: int
+    :param user: The user to remove the contact for.
+    :type user: User
+    :param db: The database session.
+    :type db: Session
+    :raises HTTPException: If the contact with the specified ID is not found.
+    :return: A message confirming the deletion.
+    :rtype: dict
+    """
+
     db_contact = (
         db.query(Contact)
         .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
@@ -104,6 +170,16 @@ async def delete_contact(contact_id: int, user: User, db: Session):
 
 
 async def get_future_birthdays(user: User, db: Session):
+    """
+    Retrieve all contacts with birthdays within next 7 days for a specific user.
+
+    :param user: The user to retrive the contacts for.
+    :type user: User
+    :param db: The database session.
+    :type db: Session
+    :return: Contacts with birthdays within next 7 days.
+    :rtype: List[Contact]
+    """
     today = datetime.now().date()
     end_date = today + timedelta(days=7)
 

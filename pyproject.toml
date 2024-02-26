@@ -27,6 +27,8 @@ pydantic-settings = "^2.2.0"
 redis = "^5.0.1"
 cloudinary = "^1.38.0"
 
+[tool.poetry.group.dev.dependencies]
+sphinx = "^7.2.6"
 
 [build-system]
 requires = ["poetry-core"]
