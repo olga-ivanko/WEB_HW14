@@ -21,14 +21,14 @@ async def create_contact(contact: ContactModel, user: User, db: Session):
     :rtype: Contact
     """
     db_contact = Contact(
-        first_name = contact.first_name,
-        last_name = contact.last_name, 
-        email = contact.email,
-        phone = contact.phone,
-        birthday = contact.birthday,
-        notes = contact.notes,
-        user = user
-        )
+        first_name=contact.first_name,
+        last_name=contact.last_name,
+        email=contact.email,
+        phone=contact.phone,
+        birthday=contact.birthday,
+        notes=contact.notes,
+        user=user,
+    )
     db.add(db_contact)
     db.commit()
     db.refresh(db_contact)
@@ -53,14 +53,14 @@ async def read_contacts(db: Session, q: str = None, user = User):
             db.query(Contact)
             .filter(
                 and_(
-                or_(
-                    Contact.first_name.ilike(f"%{q}%"),
-                    Contact.last_name.ilike(f"%{q}%"),
-                    Contact.email.ilike(f"%{q}%"),
-                ),
-                Contact.user_id == user.id
-
-            ))
+                    or_(
+                        Contact.first_name.ilike(f"%{q}%"),
+                        Contact.last_name.ilike(f"%{q}%"),
+                        Contact.email.ilike(f"%{q}%"),
+                    ),
+                    Contact.user_id == user.id,
+                )
+            )
             .all()
         )
 
@@ -71,9 +71,9 @@ async def find_contact(contact_id: int, user: User, db: Session):
     """
     Retrieves a single contact with specified ID for the specific user.
 
-    :param contact_id: The ID of the contact to retrive.
+    :param contact_id: The ID of the contact to retrieve.
     :type contact_id: int
-    :param user:The user to retrieve contact for.
+    :param user: The user to retrieve contact for.
     :type user: User
     :param db: The database session.
     :type db: Session
@@ -81,7 +81,11 @@ async def find_contact(contact_id: int, user: User, db: Session):
     :return: The found contact.
     :rtype: Contact
     """
-    db_contact = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.id == contact_id)).first()
+    db_contact = (
+        db.query(Contact)
+        .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
+        .first()
+    )
     if db_contact is None:
         raise HTTPException(
             status_code=404, detail=f"Contact with id: {contact_id} was not found"
@@ -89,7 +93,9 @@ async def find_contact(contact_id: int, user: User, db: Session):
     return db_contact
 
 
-async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db: Session):
+async def update_contact(
+    contact_id: int, user: User, contact: ContactUpdate, db: Session
+):
     """
     Update a specified contact's details for a specific user.
 
@@ -105,10 +111,9 @@ async def update_contact(contact_id: int, user: User, contact: ContactUpdate, db
     :return: The updated contact.
     :rtype: Contact
     """
-
     db_contact = (
         db.query(Contact)
-        .filter(and_(Contact.user_id == user.id,  Contact.id == contact_id))
+        .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
         .first()
     )
 
@@ -154,7 +159,6 @@ async def delete_contact(contact_id: int, user: User, db: Session):
     :return: A message confirming the deletion.
     :rtype: dict
     """
-
     db_contact = (
         db.query(Contact)
         .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
@@ -173,7 +177,7 @@ async def get_future_birthdays(user: User, db: Session):
     """
     Retrieve all contacts with birthdays within next 7 days for a specific user.
 
-    :param user: The user to retrive the contacts for.
+    :param user: The user to retrieve the contacts for.
     :type user: User
     :param db: The database session.
     :type db: Session
@@ -196,7 +200,7 @@ async def get_future_birthdays(user: User, db: Session):
                 and_(
                     extract("month", Contact.birthday) == end_date.month,
                     extract("day", Contact.birthday) <= end_date.day,
-                    Contact.user_id == user.id
+                    Contact.user_id == user.id,
                 ),
             )
         )
