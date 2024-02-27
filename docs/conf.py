@@ -10,8 +10,8 @@ import sys
 import os
 
 load_dotenv()
-print("Loaded environment variables:")
-print(dict(os.environ))
+#print("Loaded environment variables:")
+#print(dict(os.environ))
 sys.path.append(os.path.abspath(".."))
 project = 'Rest API'
 copyright = '2024, o.ivanko'
