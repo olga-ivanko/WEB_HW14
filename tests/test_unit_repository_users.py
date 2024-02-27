@@ -1,7 +1,6 @@
 import sys
 import os
 from dotenv import load_dotenv
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 import unittest
