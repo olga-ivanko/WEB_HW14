@@ -13,11 +13,13 @@ app = FastAPI()
 
 origins = ["*"]
 
-app.add_middleware(CORSMiddleware, 
-                   allow_origins=origins, 
-                   allow_credentials=True, 
-                   allow_methods=["*"], 
-                   allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
@@ -25,19 +27,21 @@ app.include_router(contacts.router_b, prefix="/api")
 app.include_router(users.router, prefix="/api")
 
 
-@app.on_event("startup")
-async def startup():
+async def startup_event():
     """
     Function to run on application startup.
     """
     r = await redis.Redis(
-        host=settings.redis_host, 
-        port=settings.redis_port, 
-        db=0, 
-        encoding="utf-8", 
-        decode_responses=True
+        host=settings.redis_host,
+        port=settings.redis_port,
+        db=0,
+        encoding="utf-8",
+        decode_responses=True,
     )
     await FastAPILimiter.init(r)
+
+
+app.add_event_handler("startup", startup_event)
 
 
 @app.get("/")
