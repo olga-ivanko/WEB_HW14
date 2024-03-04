@@ -1,4 +1,6 @@
 __pycache__
 .env
 postgres-data
-
+setup.cfg
+.coverage
+test.db
